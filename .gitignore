@@ -1,1 +1,8 @@
 target/
+.cheatsheet.xml
+.classpath
+.factorypath
+.project
+.settings/
+.tern-project
+
