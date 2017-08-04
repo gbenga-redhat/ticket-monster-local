@@ -19,7 +19,8 @@ public class EventService {
 	private EntityManager em;
 
 	@GET
-	@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+	//@Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+	@Produces(MediaType.APPLICATION_JSON) 
 	public List<Event> getAllEvents() {
 		final List<Event> results =
 			em.createQuery(
