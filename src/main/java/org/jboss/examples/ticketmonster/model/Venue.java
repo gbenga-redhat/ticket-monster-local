@@ -15,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 import org.hibernate.validator.constraints.NotEmpty;
+import org.jboss.examples.ticketmonster.rest.BaseEntityService;
 
 /**
  * <p>
@@ -27,7 +28,7 @@ public class Venue {
 
     /* Declaration of fields */
 
-    /**
+	/**
      * The synthetic id of the object.
      */
     @Id

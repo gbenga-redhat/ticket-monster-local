@@ -1,5 +1,7 @@
 package org.jboss.examples.ticketmonster.model;
 
+import static javax.persistence.TemporalType.TIMESTAMP;
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -12,7 +14,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
-import static javax.persistence.TemporalType.TIMESTAMP;
+
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 
 /**
@@ -29,6 +32,14 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @SuppressWarnings("serial")
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "date", "show_id" }))
+/**
+Just like the Venue entity, a Show also contains bi-directional relationships that need to be handled 
+as a special case for the JSON serializer. A Show contains a 1:M relationship with Performance s that also
+ links back to a Show; a Show also contains a 1:M relationship with TicketPrice s that also links back to a Show.
+  We’ll address this, by instructing Jackson to not serialize the show field in a Performance, 
+  through the @JsonIgnoreProperties annotation on the Performance entity:
+ */
+@JsonIgnoreProperties("show")
 public class Performance implements Serializable {
 
     /* Declaration of fields */

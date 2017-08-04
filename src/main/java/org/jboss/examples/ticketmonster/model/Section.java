@@ -11,11 +11,23 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @SuppressWarnings("serial")
 @Entity
 @Table(uniqueConstraints=@UniqueConstraint(columnNames={"name", "venue_id"}))
+/**
+ * Retrieving shows from URLs like /rest/venues or /rest/venues/1 almost always results in invalid JSON responses.
+ *  The root cause is the presence of a bi-directional relationship in the Venue entity.
+ *   A Venue contains a 1:M relationship with Section s that also links back to a Venue. 
+ *   JSON serialiers like Jackson (the one used in JBoss Enterprise Application Platform) need to be instructed 
+ *   on how to handle such cycles in object graphs, failing which the serializer will traverse between the 
+ *   entities in the cycle, resulting in an infinite loop (and often an OutOfMemoryError or a StackOverflowError).
+ *    We’ll address this, by instructing Jackson to not serialize the venue field in a Section,
+ *     through the @JsonIgnoreProperties annotation on the Section entity:
+ */
+@JsonIgnoreProperties("venue")
 public class Section implements Serializable {
 
     /* Declaration of fields */
