@@ -3,6 +3,7 @@ package org.jboss.examples.ticketmonster.model;
 import javax.persistence.Entity;
 import java.io.Serializable;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Column;
@@ -11,115 +12,160 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Entity
-public class Event implements Serializable {
+public class Event {
 
-	private static final long serialVersionUID = 1L;
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(name = "id", updatable = false, nullable = false)
-	private Long id;
-	@Version
-	@Column(name = "version")
-	private int version;
+	  /* Declaration of fields */
 
-	@Column
-	@NotNull
-	@Size(min = 5, max = 50, message = "an event's name must contain between 5 and 50 characters")
-	private String name;
+    /**
+     * The synthetic ID of the object.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column
-	@Size(min = 20, max = 1000, message = "an event's description must contain between 20 and 1000 characters")
-	private String description;
+    /**
+     * <p>
+     * The name of the event.
+     * </p>
+     *
+     * <p>
+     * The name of the event forms it's natural identity and cannot be shared between events.
+     * </p>
+     *
+     * <p>
+     * Two constraints are applied using Bean Validation
+     * </p>
+     *
+     * <ol>
+     * <li><code>@NotNull</code> &mdash; the name must not be null.</li>
+     * <li><code>@Size</code> &mdash; the name must be at least 5 characters and no more than 50 characters. This allows for
+     * better formatting consistency in the view layer.</li>
+     * </ol>
+     */
+    @Column(unique = true)
+    @NotNull
+    @Size(min = 5, max = 50, message = "An event's name must contain between 5 and 50 characters")
+    private String name;
 
-	@Column
-	private boolean major;
+    /**
+     * <p>
+     * A description of the event.
+     * </p>
+     *
+     * <p>
+     * Two constraints are applied using Bean Validation
+     * </p>
+     *
+     * <ol>
+     * <li><code>@NotNull</code> &mdash; the description must not be null.</li>
+     * <li><code>@Size</code> &mdash; the name must be at least 20 characters and no more than 1000 characters. This allows for
+     * better formatting consistency in the view layer, and also ensures that event organisers provide at least some description
+     * - a classic example of a business constraint.</li>
+     * </ol>
+     */
+    @NotNull
+    @Size(min = 20, max = 1000, message = "An event's description must contain between 20 and 1000 characters")
+    private String description;
+    
+    /**
+     * <p>
+     * A media item, such as an image, which can be used to entice a browser to book a ticket.
+     * </p>
+     *
+     * <p>
+     * Media items can be shared between events, so this is modeled as a <code>@ManyToOne</code> relationship.
+     * </p>
+     *
+     * <p>
+     * Adding a media item is optional, and the view layer will adapt if none is provided.
+     * </p>
+     *
+     */
+    @ManyToOne
+    private MediaItem mediaItem;    
 
-	@Column
-	private String picture;
+    /**
+     * <p>
+     * The category of the event
+     * </p>
+     *
+     * <p>
+     * Event categories are used to ease searching of available of events, and hence this is modeled as a relationship
+     * </p>
+     *
+     * <p>
+     * The Bean Validation constraint <code>@NotNull</code> indicates that the event category must be specified.
+     */
+    @ManyToOne
+    @NotNull
+    private EventCategory category;
+    
+    /* Boilerplate getters and setters */
+
+    public EventCategory getCategory() {
+		return category;
+	}
+
+	public void setCategory(EventCategory category) {
+		this.category = category;
+	}
 
 	public Long getId() {
-		return this.id;
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /* toString(), equals() and hashCode() for Event, using the natural identity of the object */
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Event event = (Event) o;
+
+        if (name != null ? !name.equals(event.name) : event.name != null)
+            return false;
+
+        return true;
+    }
+
+    public MediaItem getMediaItem() {
+		return mediaItem;
 	}
 
-	public void setId(final Long id) {
-		this.id = id;
-	}
-
-	public int getVersion() {
-		return this.version;
-	}
-
-	public void setVersion(final int version) {
-		this.version = version;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof Event)) {
-			return false;
-		}
-		Event other = (Event) obj;
-		if (id != null) {
-			if (!id.equals(other.id)) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public boolean isMajor() {
-		return major;
-	}
-
-	public void setMajor(boolean major) {
-		this.major = major;
-	}
-
-	public String getPicture() {
-		return picture;
-	}
-
-	public void setPicture(String picture) {
-		this.picture = picture;
+	public void setMediaItem(MediaItem mediaItem) {
+		this.mediaItem = mediaItem;
 	}
 
 	@Override
-	public String toString() {
-		String result = getClass().getSimpleName() + " ";
-		if (name != null && !name.trim().isEmpty())
-			result += "name: " + name;
-		if (description != null && !description.trim().isEmpty())
-			result += ", description: " + description;
-		result += ", major: " + major;
-		if (picture != null && !picture.trim().isEmpty())
-			result += ", picture: " + picture;
-		return result;
-	}
+    public int hashCode() {
+        return name != null ? name.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
